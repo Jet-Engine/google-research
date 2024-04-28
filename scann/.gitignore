@@ -1,0 +1,9 @@
+.bazel-query.sh
+.bazelrc
+MODULE.bazel
+MODULE.bazel.lock
+bazel-bin
+bazel-out
+bazel-scann
+bazel-testlogs
+venv/
