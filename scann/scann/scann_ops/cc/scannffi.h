@@ -1,6 +1,8 @@
 #include <stddef.h>
+#include "scann/utils/common.h"
 
 typedef struct _scann Scann;
+typedef research_scann::DatapointIndex DatapointIndex;
 
 typedef enum {
     SCANN_SUCCESS = 0,
@@ -12,13 +14,16 @@ extern "C" {
 
     void scann_free();
 
-    ScannStatus scann_initialize(Scann* scann, const float* dataset, size_t rows, size_t cols, const char* config, int training_threads);
+    ScannStatus scann_initialize(Scann* scann, const float* dataset, size_t
+            rows, size_t cols, const char* config, int training_threads);
 
     void scann_initialize_proto();
 
     void scann_search();
 
-    void scann_search_batched();
+    ScannStatus scann_search_batched(Scann* scann, DatapointIndex** indices,
+            float** distances, const float* queries, size_t rows, size_t cols, int
+            final_nn, int pre_reorder_nn, int leaves, bool parallel, int batch_size);
 
     void scann_search_batched_parallel();
 

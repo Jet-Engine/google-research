@@ -6,7 +6,6 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-
 // TODO: Expose error messages.
 // TODO: Prevent unnecessary deep copies.
 
@@ -43,9 +42,11 @@ void scann_initialize_proto();
 void scann_search();
 
 // XXX: Queries must be two-dimensional
-ScannStatus scann_search_batched(Scann* scann, const float* queries, size_t rows,
-        size_t cols, int final_nn, int pre_reorder_nn, int leaves, bool
-        parallel, int batch_size)
+// XXX: ReshapeBatchedNNResult may throw an exception. Catch that.
+// XXX: We are deliberately leaking memory right now. This should be fixed.
+ScannStatus scann_search_batched(Scann* scann, DatapointIndex** indices,
+        float** distances, const float* queries, size_t rows, size_t cols, int
+        final_nn, int pre_reorder_nn, int leaves, bool parallel, int batch_size)
 {
     auto interface = INTERFACE_CAST(scann);
 
@@ -66,15 +67,13 @@ ScannStatus scann_search_batched(Scann* scann, const float* queries, size_t rows
     for (const auto& nn_res : res)
         final_nn = std::max<int>(final_nn, nn_res.size());
 
-    // TODO
+    auto _indices { new DatapointIndex[query_dataset.size() * final_nn] };
+    auto _distances { new float[query_dataset.size() * final_nn] };
 
-    /* pybind11::array_t<research_scann::DatapointIndex> indices( {static_cast<long>(query_dataset.size()), static_cast<long>(final_nn)} ); */
-    /* pybind11::array_t<float> distances(  {static_cast<long>(query_dataset.size()), static_cast<long>(final_nn)}); */
+    interface->ReshapeBatchedNNResult(absl::MakeConstSpan(res), _indices, _distances, final_nn);
 
-    /* auto idx_ptr = reinterpret_cast<research_scann::DatapointIndex*>(indices.request().ptr); */
-    /* auto dis_ptr = reinterpret_cast<float*>(distances.request().ptr); */
-
-    /* interface->ReshapeBatchedNNResult(absl::MakeConstSpan(res), idx_ptr, dis_ptr, final_nn); */
+    *indices = _indices;
+    *distances = _distances;
 
     return SCANN_SUCCESS;
 }
