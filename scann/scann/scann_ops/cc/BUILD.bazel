@@ -116,8 +116,16 @@ pybind_library(
 )
 
 cc_library(
-    name = "scannffi",
+    name = "ffi",
     srcs = ["scannffi.cc"],
     hdrs = ["scannffi.h"],
     deps = [":scann"],
+    alwayslink = 1,
+)
+
+cc_binary(
+    name = "scannffi",
+    deps = [":ffi"],
+    linkshared = 1,
+    linkstatic = 1,
 )

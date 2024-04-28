@@ -1,8 +1,13 @@
 #include <stddef.h>
-#include "scann/utils/common.h"
+#include <cstdint>
 
 typedef struct _scann Scann;
-typedef research_scann::DatapointIndex DatapointIndex;
+
+#ifdef SCANN_DATAPOINT_INDEX_64
+typedef uint64_t DatapointIndex;
+#else
+typedef uint32_t DatapointIndex;
+#endif
 
 typedef enum {
     SCANN_SUCCESS = 0,
